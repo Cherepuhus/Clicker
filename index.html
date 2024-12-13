@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Жабий кликер</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', sans-serif;
+            text-align: center;
+            background: linear-gradient(to bottom, #98fb98, #2e8b57);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+        #clicker {
+            margin: 20px auto;
+            width: 150px;
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+        #clicker:active {
+            transform: scale(0.9);
+        }
+        #store, #skins {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #store h2, #skins h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #32cd32;
+            color: white;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        button:hover {
+            background: #228b22;
+        }
+        button:active {
+            background: #006400;
+        }
+        .skin {
+            margin: 10px;
+            width: 60px;
+            height: 60px;
+            background-size: cover;
+            background-position: center;
+            display: inline-block;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: border 0.3s ease, transform 0.2s ease-in-out;
+        }
+        .skin:hover {
+            transform: scale(1.1);
+        }
+        .selected {
+            border: 3px solid #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <h1>Жабий кликер</h1>
+    <p>Жаб: <span id="points">0</span></p>
+    <div id="clicker" style="background-image: url('JabaButton.png');"></div>
+
+    <div id="store">
+        <h2>Магазин</h2>
+        <button onclick="buyUpgrade()">Улучшить клик (+1 жабу) - цена: <span id="upgradeCost">10</span></button>
+        <button onclick="confirmReset()">Удалить всё</button>
+    </div>
+
+    <div id="skins">
+        <h2>Скины</h2>
+        <div class="skin" data-id="1" style="background-image: url('JabaButton.png');" onclick="selectSkin(1)"></div>
+        <div class="skin" data-id="2" style="background-image: url('CherepButton.png');" onclick="selectSkin(2)"></div>
+        <div class="skin" data-id="3" style="background-image: url('ValeraTwo.png');" onclick="selectSkin(3)"></div>
+    </div>
+
+    <script>
+        let points = parseInt(localStorage.getItem('points')) || 0;
+        let upgradeCost = parseInt(localStorage.getItem('upgradeCost')) || 10;
+        let clickValue = parseInt(localStorage.getItem('clickValue')) || 1;
+        let selectedSkin = parseInt(localStorage.getItem('selectedSkin')) || 1;
+
+        document.getElementById('points').textContent = points;
+        document.getElementById('upgradeCost').textContent = upgradeCost;
+        applySkin(selectedSkin);
+
+        document.getElementById('clicker').addEventListener('click', () => {
+            points += clickValue;
+            document.getElementById('points').textContent = points;
+            saveGame();
+        });
+
+        function buyUpgrade() {
+            if (points >= upgradeCost) {
+                points -= upgradeCost;
+                clickValue++;
+                upgradeCost *= 2;
+                document.getElementById('points').textContent = points;
+                document.getElementById('upgradeCost').textContent = upgradeCost;
+                saveGame();
+				alert('Успешно!');
+            } else {
+                alert('Не хватает жаб!');
+            }
+        }
+
+        function selectSkin(id) {
+            selectedSkin = id;
+            applySkin(id);
+            saveGame();
+        }
+
+        function applySkin(id) {
+            const clicker = document.getElementById('clicker');
+            document.querySelectorAll('.skin').forEach(skin => skin.classList.remove('selected'));
+            document.querySelector(`.skin[data-id='${id}']`).classList.add('selected');
+
+            if (id === 1) clicker.style.backgroundImage = "url('JabaButton.png')";
+            else if (id === 2) clicker.style.backgroundImage = "url('CherepButton.png')";
+            else if (id === 3) clicker.style.backgroundImage = "url('ValeraTwo.png')";
+        }
+
+        function confirmReset() {
+            if (confirm('Ты уверен? (ЖАБ БОЛЬШЕ НЕ ВОССТАНОВИТЬ!) ')) {
+                resetGame();
+            }
+        }
+
+        function resetGame() {
+            points = 0;
+            upgradeCost = 10;
+            clickValue = 1;
+            selectedSkin = 1;
+            document.getElementById('points').textContent = points;
+            document.getElementById('upgradeCost').textContent = upgradeCost;
+            applySkin(selectedSkin);
+            saveGame();
+        }
+
+        function saveGame() {
+            localStorage.setItem('points', points);
+            localStorage.setItem('upgradeCost', upgradeCost);
+            localStorage.setItem('clickValue', clickValue);
+            localStorage.setItem('selectedSkin', selectedSkin);
+        }
+    </script>
+</body>
+</html>
